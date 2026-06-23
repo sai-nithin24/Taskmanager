@@ -6,12 +6,12 @@ RUN docker-php-ext-install pdo pdo_mysql
 # Enable mod_rewrite and mod_headers
 RUN a2enmod rewrite headers
 
-# Allow .htaccess overrides everywhere
+# Allow .htaccess overrides in all directories
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf \
- && sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/sites-available/000-default.conf
+ && sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/sites-enabled/000-default.conf 2>/dev/null || true
 
-# Write a clean vhost that serves from project root
-RUN echo '<VirtualHost *:80>\n\
+# Write clean vhost — document root = project root so /src/api/*.php works
+RUN printf '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html\n\
     <Directory /var/www/html>\n\
         Options -Indexes +FollowSymLinks\n\
@@ -20,9 +20,9 @@ RUN echo '<VirtualHost *:80>\n\
     </Directory>\n\
     ErrorLog ${APACHE_LOG_DIR}/error.log\n\
     CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+</VirtualHost>\n' > /etc/apache2/sites-available/000-default.conf
 
-# Copy project files
+# Copy project files (cache-bust: build=2)
 COPY . /var/www/html/
 
 # Set permissions
