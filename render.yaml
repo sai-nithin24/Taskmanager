@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: taskboard-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: DB_HOST
+        sync: false        # Set manually in Render dashboard
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        sync: false        # Set manually in Render dashboard
+      - key: DB_USER
+        sync: false        # Set manually in Render dashboard
+      - key: DB_PASS
+        sync: false        # Set manually in Render dashboard
+      - key: DB_CHARSET
+        value: "utf8mb4"
+      - key: FRONTEND_URL
+        sync: false        # Set to your Vercel URL e.g. https://taskboard.vercel.app

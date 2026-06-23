@@ -1,11 +1,35 @@
 <?php
-header('Access-Control-Allow-Origin: *');
+// ── CORS ─────────────────────────────────────────────────────
+// Allow requests from any Vercel preview URL and the production domain.
+$allowedOrigins = [
+    'http://localhost',
+    'http://localhost:3000',
+    'http://127.0.0.1',
+];
+
+// Allow all *.vercel.app subdomains + any FRONTEND_URL set in env
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$frontendUrl = getenv('FRONTEND_URL') ?: '';
+
+$isAllowed = in_array($origin, $allowedOrigins, true)
+    || ($frontendUrl && $origin === $frontendUrl)
+    || preg_match('/^https:\/\/[\w\-]+\.vercel\.app$/', $origin);
+
+if ($isAllowed) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    // Fallback: allow all during development (remove in strict production)
+    header('Access-Control-Allow-Origin: *');
+}
+
 header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: false');
+header('Vary: Origin');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
-    http_response_code(204); 
-    exit; 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
 }
 
 // bootstrap
