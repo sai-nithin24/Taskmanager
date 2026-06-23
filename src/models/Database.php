@@ -1,8 +1,7 @@
 <?php
 // ============================================================
 //  src/models/Database.php
-//  PDO singleton — one connection per request
-//  Supports SSL (required for Aiven MySQL)
+//  PDO singleton — supports SSL for Aiven MySQL (PHP 8.2)
 // ============================================================
 
 class Database
@@ -26,10 +25,11 @@ class Database
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ];
 
-            // Aiven (and most managed DBs) require SSL
+            // SSL required for Aiven and most managed cloud DBs
+            // PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT = 1014
+            // Using numeric constant for PHP 8.2 compatibility
             if (DB_SSL) {
-                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
-                $options[PDO::MYSQL_ATTR_SSL_CA]                 = '';
+                $options[1014] = false; // MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
             }
 
             self::$instance = new PDO($dsn, DB_USER, DB_PASS, $options);
