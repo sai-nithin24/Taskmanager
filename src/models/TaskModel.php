@@ -24,7 +24,8 @@ class TaskModel
         if ($filter === 'all') {
             $stmt = $this->db->query(
                 'SELECT * FROM tasks ORDER BY
-                 FIELD(status,"pending","completed"), created_at DESC'
+                 CASE status WHEN "pending" THEN 0 WHEN "completed" THEN 1 ELSE 2 END,
+                 created_at DESC'
             );
         } else {
             $stmt = $this->db->prepare(
