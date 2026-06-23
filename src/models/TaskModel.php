@@ -2,6 +2,7 @@
 // ============================================================
 //  src/models/TaskModel.php
 //  Data-access layer for the `tasks` table
+//  Uses only standard SQL — compatible with MySQL 5.7, 8.0, 8.4
 // ============================================================
 
 class TaskModel
@@ -22,10 +23,14 @@ class TaskModel
         if (!in_array($filter, $allowed, true)) $filter = 'all';
 
         if ($filter === 'all') {
+            // CASE WHEN used instead of FIELD() — works on all MySQL versions
             $stmt = $this->db->query(
-                'SELECT * FROM tasks ORDER BY
-                 CASE status WHEN "pending" THEN 0 WHEN "completed" THEN 1 ELSE 2 END,
-                 created_at DESC'
+                'SELECT * FROM tasks
+                 ORDER BY
+                   CASE WHEN status = \'pending\'   THEN 0
+                        WHEN status = \'completed\' THEN 1
+                        ELSE 2 END,
+                   created_at DESC'
             );
         } else {
             $stmt = $this->db->prepare(
@@ -39,15 +44,28 @@ class TaskModel
     /** Aggregate counts for the stats bar */
     public function getStats(): array
     {
+        // Use COUNT + CASE instead of SUM(status="x") — strict SQL compatible
         $row = $this->db
-            ->query('SELECT
-                       COUNT(*)                                   AS total,
-                       COALESCE(SUM(status = "pending"),   0)    AS pending,
-                       COALESCE(SUM(status = "completed"), 0)    AS completed,
-                       COALESCE(ROUND(SUM(status="completed")/NULLIF(COUNT(*),0)*100), 0) AS pct
-                     FROM tasks')
+            ->query("SELECT
+                       COUNT(*) AS total,
+                       COUNT(CASE WHEN status = 'pending'   THEN 1 END) AS pending,
+                       COUNT(CASE WHEN status = 'completed' THEN 1 END) AS completed,
+                       CASE WHEN COUNT(*) = 0 THEN 0
+                            ELSE ROUND(
+                              COUNT(CASE WHEN status = 'completed' THEN 1 END)
+                              / COUNT(*) * 100
+                            )
+                       END AS pct
+                     FROM tasks")
             ->fetch();
-        return $row ?: ['total'=>0,'pending'=>0,'completed'=>0,'pct'=>0];
+
+        // Cast all values to int so JSON always returns numbers not strings
+        return $row ? [
+            'total'     => (int) $row['total'],
+            'pending'   => (int) $row['pending'],
+            'completed' => (int) $row['completed'],
+            'pct'       => (int) $row['pct'],
+        ] : ['total' => 0, 'pending' => 0, 'completed' => 0, 'pct' => 0];
     }
 
     /** Find a single task by id */
