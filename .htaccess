@@ -1,19 +1,17 @@
 Options -Indexes
-DirectoryIndex public/index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Serve public/ assets directly
-  RewriteCond %{REQUEST_URI} ^/public/
+  # Let /src/api/ pass through directly to PHP
+  RewriteRule ^src/api/.*\.php$ - [L]
+
+  # Let existing files and directories through
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Route API requests directly
-  RewriteCond %{REQUEST_URI} ^/src/api/
-  RewriteRule ^ - [L]
-
-  # Everything else → public/index.html
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ /public/index.html [L]
+  # Everything else → serve frontend from public/
+  RewriteRule ^$ public/index.html [L]
+  RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
