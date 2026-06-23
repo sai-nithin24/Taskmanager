@@ -27,7 +27,7 @@ function escHtml(str) {
 
 /* ── Api ──────────────────────────────────────────────────── */
 const Api = (() => {
-  const BASE = 'https://taskmanager-backend.onrender.com/src/api/tasks.php';
+  const BASE = 'https://taskmanager-backend-jnuo.onrender.com/src/api/tasks.php';
 
   async function request(method, body, params) {
     params = params || '';
