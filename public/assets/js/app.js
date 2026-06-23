@@ -1,8 +1,8 @@
 /**
- * TaskBoard · app.js
+ * TaskBoard · app.js  v3
  * ============================================================
  * Modules (IIFE pattern, no bundler needed):
- *   Api      — fetch wrapper for /src/api/tasks.php
+ *   Api      — fetch wrapper for Render backend
  *   Validate — client-side rules (mirrors server-side)
  *   Toast    — notification system
  *   Clock    — live header clock
