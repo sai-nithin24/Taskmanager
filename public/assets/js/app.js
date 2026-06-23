@@ -27,7 +27,7 @@ function escHtml(str) {
 
 /* ── Api ──────────────────────────────────────────────────── */
 const Api = (() => {
-  const BASE = '/taskboard/src/api/tasks.php';
+  const BASE = 'https://task-backend.onrender.com/src/api/tasks.php';
 
   async function request(method, body, params) {
     params = params || '';
@@ -57,11 +57,11 @@ const Api = (() => {
   }
 
   return {
-    getTasks : function(filter) { return request('GET',  null, '?filter=' + (filter || 'all')); },
-    getStats : function()       { return request('GET',  null, '?stats=1'); },
-    create   : function(title, priority) { return request('POST',   { title: title, priority: priority }); },
-    setStatus: function(id, status)      { return request('PATCH',  { id: id, status: status }); },
-    remove   : function(id)              { return request('DELETE', { id: id }); },
+    getTasks: function (filter) { return request('GET', null, '?filter=' + (filter || 'all')); },
+    getStats: function () { return request('GET', null, '?stats=1'); },
+    create: function (title, priority) { return request('POST', { title: title, priority: priority }); },
+    setStatus: function (id, status) { return request('PATCH', { id: id, status: status }); },
+    remove: function (id) { return request('DELETE', { id: id }); },
   };
 })();
 
@@ -72,7 +72,7 @@ const Validate = (() => {
 
   function task(title) {
     var t = title.trim();
-    if (!t)            return 'Task name is required.';
+    if (!t) return 'Task name is required.';
     if (t.length < MIN) return 'At least ' + MIN + ' characters needed.';
     if (t.length > MAX) return 'Keep it under ' + MAX + ' characters.';
     if (/^[^a-zA-Z0-9]/.test(t)) return 'Start with a letter or number.';
@@ -154,20 +154,20 @@ const Stats = (() => {
   }
 
   function update(data) {
-    var total     = parseInt(data.total,     10) || 0;
-    var pending   = parseInt(data.pending,   10) || 0;
+    var total = parseInt(data.total, 10) || 0;
+    var pending = parseInt(data.pending, 10) || 0;
     var completed = parseInt(data.completed, 10) || 0;
-    var pct       = parseInt(data.pct,       10) || 0;
+    var pct = parseInt(data.pct, 10) || 0;
 
     // Stat bar
-    setText('stat-total',     total);
-    setText('stat-pending',   pending);
+    setText('stat-total', total);
+    setText('stat-pending', pending);
     setText('stat-completed', completed);
-    setText('stat-pct',       pct + '%');
+    setText('stat-pct', pct + '%');
 
     // Filter badges
-    setText('badge-all',       total);
-    setText('badge-pending',   pending);
+    setText('badge-all', total);
+    setText('badge-pending', pending);
     setText('badge-completed', completed);
 
     // SVG ring
@@ -190,27 +190,27 @@ const Stats = (() => {
 /* ── Tasks ────────────────────────────────────────────────── */
 const Tasks = (() => {
   var PRIORITY = {
-    high:   { label: 'High', cssClass: 'high'   },
-    medium: { label: 'Med',  cssClass: 'medium' },
-    low:    { label: 'Low',  cssClass: 'low'    },
+    high: { label: 'High', cssClass: 'high' },
+    medium: { label: 'Med', cssClass: 'medium' },
+    low: { label: 'Low', cssClass: 'low' },
   };
 
   function timeAgo(dateStr) {
     var diff = Date.now() - new Date(dateStr).getTime();
-    if (diff < 60000)    return 'just now';
-    if (diff < 3600000)  return Math.floor(diff / 60000)   + 'm ago';
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
     if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
     return Math.floor(diff / 86400000) + 'd ago';
   }
 
   function createCard(task) {
     var done = task.status === 'completed';
-    var pm   = PRIORITY[task.priority] || PRIORITY.medium;
+    var pm = PRIORITY[task.priority] || PRIORITY.medium;
 
     // ── Wrapper ──────────────────────────────────────────────
     var card = document.createElement('div');
-    card.className   = 'task-card ' + (done ? 'done' : 'pending');
-    card.dataset.id  = task.id;
+    card.className = 'task-card ' + (done ? 'done' : 'pending');
+    card.dataset.id = task.id;
 
     // ── Heat bar ─────────────────────────────────────────────
     var heat = document.createElement('div');
@@ -218,7 +218,7 @@ const Tasks = (() => {
 
     // ── Checkbox button ──────────────────────────────────────
     var check = document.createElement('button');
-    check.className  = 'task-card__check' + (done ? ' checked' : '');
+    check.className = 'task-card__check' + (done ? ' checked' : '');
     check.setAttribute('aria-label', done ? 'Reopen task' : 'Complete task');
     check.setAttribute('data-action', done ? 'reopen' : 'complete');
     check.setAttribute('type', 'button');
@@ -229,21 +229,21 @@ const Tasks = (() => {
     content.className = 'task-card__content';
 
     var titleEl = document.createElement('div');
-    titleEl.className   = 'task-card__title' + (done ? ' done-text' : '');
+    titleEl.className = 'task-card__title' + (done ? ' done-text' : '');
     titleEl.textContent = task.title;          // safe textContent
 
     var meta = document.createElement('div');
     meta.className = 'task-card__meta';
 
     var priorityEl = document.createElement('span');
-    priorityEl.className   = 'task-card__priority ' + (done ? 'done' : pm.cssClass);
+    priorityEl.className = 'task-card__priority ' + (done ? 'done' : pm.cssClass);
     priorityEl.textContent = pm.label;
 
     var dot1 = document.createElement('span');
     dot1.className = 'task-card__dot';
 
     var timeEl = document.createElement('span');
-    timeEl.className   = 'task-card__time';
+    timeEl.className = 'task-card__time';
     timeEl.textContent = timeAgo(task.created_at);
 
     meta.appendChild(priorityEl);
@@ -254,7 +254,7 @@ const Tasks = (() => {
       var dot2 = document.createElement('span');
       dot2.className = 'task-card__dot';
       var badge = document.createElement('span');
-      badge.className   = 'task-card__done-badge';
+      badge.className = 'task-card__done-badge';
       badge.textContent = 'Done';
       meta.appendChild(dot2);
       meta.appendChild(badge);
@@ -270,14 +270,14 @@ const Tasks = (() => {
     var toggleBtn = document.createElement('button');
     toggleBtn.setAttribute('type', 'button');
     toggleBtn.setAttribute('data-action', done ? 'reopen' : 'complete');
-    toggleBtn.className   = 'btn-action ' + (done ? 'btn-reopen' : 'btn-done');
+    toggleBtn.className = 'btn-action ' + (done ? 'btn-reopen' : 'btn-done');
     toggleBtn.textContent = done ? 'Reopen' : 'Done';
 
     var delBtn = document.createElement('button');
     delBtn.setAttribute('type', 'button');
     delBtn.setAttribute('data-action', 'delete');
     delBtn.setAttribute('aria-label', 'Delete task');
-    delBtn.className   = 'btn-action btn-delete';
+    delBtn.className = 'btn-action btn-delete';
     delBtn.textContent = '✕';
 
     actions.appendChild(toggleBtn);
@@ -303,7 +303,7 @@ const Tasks = (() => {
       return;
     }
 
-    tasks.forEach(function(t) { list.appendChild(createCard(t)); });
+    tasks.forEach(function (t) { list.appendChild(createCard(t)); });
   }
 
   return { render: render };
@@ -314,12 +314,12 @@ const Form = (() => {
   var touched = false;
 
   function init(onSubmit) {
-    var card    = document.getElementById('form-card');
-    var input   = document.getElementById('task-input');
-    var errEl   = document.getElementById('input-err');
+    var card = document.getElementById('form-card');
+    var input = document.getElementById('task-input');
+    var errEl = document.getElementById('input-err');
     var countEl = document.getElementById('input-count');
-    var pills   = document.querySelectorAll('.priority-pill');
-    var btn     = document.getElementById('btn-add');
+    var pills = document.querySelectorAll('.priority-pill');
+    var btn = document.getElementById('btn-add');
 
     var selectedPriority = 'medium';
 
@@ -332,20 +332,20 @@ const Form = (() => {
     }
 
     function liveValidate() {
-      var err  = Validate.task(input.value);
+      var err = Validate.task(input.value);
       var left = Validate.MAX - input.value.trim().length;
-      input.classList.toggle('error',   !!err);
+      input.classList.toggle('error', !!err);
       input.classList.toggle('success', !err && input.value.trim().length >= Validate.MIN);
 
       if (err) {
         errEl.textContent = err;
-        errEl.className   = 'task-input__err';
+        errEl.className = 'task-input__err';
       } else if (input.value.trim()) {
         errEl.textContent = '✓ Looks good';
-        errEl.className   = 'task-input__err task-input__ok';
+        errEl.className = 'task-input__err task-input__ok';
       } else {
         errEl.textContent = '';
-        errEl.className   = 'task-input__err';
+        errEl.className = 'task-input__err';
       }
 
       btn.disabled = (left < 0);
@@ -357,26 +357,26 @@ const Form = (() => {
       if (err) {
         input.classList.add('error');
         errEl.textContent = err;
-        errEl.className   = 'task-input__err';
+        errEl.className = 'task-input__err';
         input.focus();
         return;
       }
 
       btn.disabled = true;
       onSubmit(input.value.trim(), selectedPriority, function reset() {
-        input.value       = '';
+        input.value = '';
         errEl.textContent = '';
-        input.className   = 'task-input';
+        input.className = 'task-input';
         countEl.textContent = Validate.MAX + ' left';
-        touched           = false;
-        btn.disabled      = false;
+        touched = false;
+        btn.disabled = false;
       });
     }
 
     // ── Priority pills ────────────────────────────────────────
-    pills.forEach(function(pill) {
-      pill.addEventListener('click', function() {
-        pills.forEach(function(p) {
+    pills.forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        pills.forEach(function (p) {
           p.className = 'priority-pill';
           p.setAttribute('aria-pressed', 'false');
         });
@@ -387,21 +387,21 @@ const Form = (() => {
     });
 
     // ── Focus ring ────────────────────────────────────────────
-    input.addEventListener('focus', function() { card.classList.add('focused'); });
-    input.addEventListener('blur',  function() {
+    input.addEventListener('focus', function () { card.classList.add('focused'); });
+    input.addEventListener('blur', function () {
       card.classList.remove('focused');
       touched = true;
       liveValidate();
     });
 
     // ── Live validation on input ──────────────────────────────
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
       updateCount();
       if (touched) liveValidate();
     });
 
     // ── Submit via Enter key or button ────────────────────────
-    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') submit(); });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
     btn.addEventListener('click', submit);
   }
 
@@ -430,10 +430,10 @@ const App = (() => {
       var empty = document.createElement('div');
       empty.className = 'empty';
       var icon = document.createElement('div');
-      icon.className   = 'empty__icon';
+      icon.className = 'empty__icon';
       icon.textContent = '⚠';
       var text = document.createElement('div');
-      text.className   = 'empty__text';
+      text.className = 'empty__text';
       text.textContent = err.message;   // safe — textContent
       empty.appendChild(icon);
       empty.appendChild(text);
@@ -443,7 +443,7 @@ const App = (() => {
 
   function setFilter(f) {
     currentFilter = f;
-    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    document.querySelectorAll('.filter-btn').forEach(function (btn) {
       btn.classList.toggle('active', btn.dataset.filter === f);
     });
     loadAll();
@@ -456,11 +456,11 @@ const App = (() => {
     var card = actionEl.closest('.task-card');
     if (!card) return;
 
-    var id  = parseInt(card.dataset.id, 10);
+    var id = parseInt(card.dataset.id, 10);
     var act = actionEl.dataset.action;
 
     // Disable all action buttons on this card to prevent double-clicks
-    card.querySelectorAll('[data-action]').forEach(function(b) { b.disabled = true; });
+    card.querySelectorAll('[data-action]').forEach(function (b) { b.disabled = true; });
 
     try {
       if (act === 'complete') {
@@ -477,7 +477,7 @@ const App = (() => {
     } catch (err) {
       Toast.show(err.message, 'warn');
       // Re-enable buttons on failure
-      card.querySelectorAll('[data-action]').forEach(function(b) { b.disabled = false; });
+      card.querySelectorAll('[data-action]').forEach(function (b) { b.disabled = false; });
     }
   }
 
@@ -487,8 +487,8 @@ const App = (() => {
     if (clockEl) Clock.start(clockEl);
 
     // Filter buttons
-    document.querySelectorAll('.filter-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() { setFilter(btn.dataset.filter); });
+    document.querySelectorAll('.filter-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { setFilter(btn.dataset.filter); });
     });
 
     // Task list — event delegation
@@ -496,7 +496,7 @@ const App = (() => {
     list.addEventListener('click', handleCardAction);
 
     // Add-task form
-    Form.init(async function(title, priority, reset) {
+    Form.init(async function (title, priority, reset) {
       try {
         await Api.create(title, priority);
         Toast.show('Task added!', 'ok');
@@ -515,4 +515,4 @@ const App = (() => {
   return { init: init };
 })();
 
-document.addEventListener('DOMContentLoaded', function() { App.init(); });
+document.addEventListener('DOMContentLoaded', function () { App.init(); });
